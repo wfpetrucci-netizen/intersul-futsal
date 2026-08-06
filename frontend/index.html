@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Inter Sul Futsal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- 1. TELA DE LOGIN (Apenas Diretores) -->
+    <div id="login-container" class="login-overlay">
+        <div class="login-card">
+            <div class="shield-logo-wrapper">
+                <img class="intersul-shield" src="logo.jpg" alt="Logo Inter Sul Futsal">
+            </div>
+            
+            <h2>ACESSO RESTRITO</h2>
+            <p class="login-subtitle">Diretoria Inter Sul Futsal</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-director"><i class="fa-solid fa-user-tie"></i> Diretor</label>
+                    <select id="login-director" required>
+                        <option value="" disabled selected>Selecione seu perfil...</option>
+                        <option value="Wagner Fagundes">Wagner Fagundes</option>
+                        <option value="Bruno Lopes">Bruno Lopes</option>
+                        <option value="Felipe de Sá">Felipe de Sá</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="login-passcode"><i class="fa-solid fa-key"></i> Senha de Acesso</label>
+                    <input type="password" id="login-passcode" placeholder="Código de 4 dígitos" maxlength="8" required>
+                </div>
+                
+                <div id="login-error-msg" class="error-alert hide">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Senha incorreta ou acesso negado.
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    Entrar no Painel <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. PAINEL PRINCIPAL (DASHBOARD) -->
+    <div id="app-container" class="app-container hide">
+        <!-- Header -->
+        <header>
+            <div class="header-main-row">
+                <div class="logo-area">
+                    <div class="small-shield-wrapper">
+                        <img class="intersul-shield-small" src="logo.jpg" alt="Logo Inter Sul Futsal">
+                    </div>
+                    <div>
+                        <h1>Inter<span>Sul</span></h1>
+                        <p class="subtitle">Painel de Controle e Gestão Administrativa</p>
+                    </div>
+                </div>
+                
+                <div class="user-status-card">
+                    <div class="user-info">
+                        <span class="user-role"><i class="fa-solid fa-shield-halved"></i> Diretor</span>
+                        <span class="user-name" id="active-director-name">Nome do Diretor</span>
+                    </div>
+                    <button id="btn-logout" class="btn-logout" title="Sair do Sistema">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Stats -->
+            <div class="stats-dashboard">
+                <div class="stat-item">
+                    <span class="stat-label">Total de Jogadores</span>
+                    <span class="stat-value" id="stat-total-players">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Mensalidades Confirmadas (Julho)</span>
+                    <span class="stat-value highlight" id="stat-monthly-ok">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Mensalidades Pendentes</span>
+                    <span class="stat-value danger" id="stat-monthly-pending">0</span>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="navigation-tabs">
+                <button class="nav-tab active" data-tab="tab-players">
+                    <i class="fa-solid fa-users"></i> Arquivo de Jogadores
+                </button>
+                <button class="nav-tab" data-tab="tab-payments">
+                    <i class="fa-solid fa-dollar-sign"></i> Controle de Mensalidades
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main>
+            <!-- 2A. TAB: ARQUIVO DE JOGADORES -->
+            <div id="tab-players" class="tab-content active">
+                <section class="controls-section">
+                    <div class="search-and-actions">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="search-input" placeholder="Buscar jogador por nome ou posição...">
+                        </div>
+                        <button id="btn-add-player" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Novo Jogador
+                        </button>
+                    </div>
+                </section>
+                
+                <div class="players-grid" id="players-grid">
+                    <!-- Dynamic player cards go here -->
+                </div>
+            </div>
+
+            <!-- 2B. TAB: CONTROLE DE MENSALIDADES -->
+            <div id="tab-payments" class="tab-content">
+                <section class="controls-section">
+                    <div class="payment-header-row">
+                        <h3><i class="fa-solid fa-calendar-check"></i> Controle de Pagamentos de Mensalidades - 2026</h3>
+                        <p class="table-tip"><i class="fa-solid fa-circle-info"></i> Altere os valores diretamente selecionando o novo status na tabela.</p>
+                    </div>
+                </section>
+                
+                <div class="table-responsive-container">
+                    <table class="payments-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome do Jogador</th>
+                                <th>Maio</th>
+                                <th>Junho</th>
+                                <th>Julho</th>
+                                <th>Agosto</th>
+                                <th>Setembro</th>
+                                <th>Outubro</th>
+                                <th>Novembro</th>
+                                <th>Dezembro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body">
+                            <!-- Rows dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Inter Sul Futsal &copy; 2026 - Painel Administrativo de Uso Exclusivo da Diretoria</p>
+        </footer>
+    </div>
+
+    <!-- MODAL: CADASTRO / EDIÇÃO DE JOGADOR -->
+    <div class="modal-overlay" id="player-modal">
+        <div class="modal-card">
+            <button class="close-btn" id="close-player-modal"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2 id="modal-title">Cadastrar Novo Jogador</h2>
+            </div>
+            <form id="player-form">
+                <input type="hidden" id="player-id">
+                
+                <div class="modal-body-form">
+                    <!-- Photo upload column -->
+                    <div class="photo-upload-section">
+                        <div class="photo-preview-box" id="photo-preview">
+                            <i class="fa-solid fa-user-astronaut placeholder-icon"></i>
+                            <img id="player-photo-img" src="" alt="Foto" class="hide">
+                        </div>
+                        <label class="file-upload-btn">
+                            <input type="file" id="player-photo-file" accept="image/*" class="hide">
+                            <i class="fa-solid fa-camera"></i> Enviar Foto
+                        </label>
+                        <p class="file-help">JPG, PNG ou WEBP</p>
+                    </div>
+                    
+                    <!-- Text inputs column -->
+                    <div class="inputs-grid-section">
+                        <div class="input-field full-width">
+                            <label for="player-name">Nome Completo</label>
+                            <input type="text" id="player-name" required placeholder="Ex: Wagner Fagundes Lucas">
+                        </div>
+                        
+                        <div class="input-field">
+                            <label for="player-pos">Posição</label>
+                            <select id="player-pos" required>
+                                <option value="" disabled selected>Escolha...</option>
+                                <option value="GOLEIRO">Goleiro</option>
+                                <option value="FIXO">Fixo</option>
+                                <option value="ALA">Ala</option>
+                                <option value="PIVÔ">Pivô</option>
+                                <option value="ALA / PIVÔ">Ala / Pivô</option>
+                                <option value="DIRETOR">Diretor</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-field">
+                            <label for="player-birth">Data de Nascimento</label>
+                            <input type="date" id="player-birth" required>
+                        </div>
+                        
+                        <div class="input-field">
+                            <label for="player-rg">RG</label>
+                            <input type="text" id="player-rg" placeholder="Opcional">
+                        </div>
+                        
+                        <div class="input-field">
+                            <label for="player-cpf">CPF</label>
+                            <input type="text" id="player-cpf" placeholder="Opcional">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-cancel" id="btn-cancel-modal">Cancelar</button>
+                    <button type="button" class="btn-delete hide" id="btn-delete-player">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Jogador
+                    </button>
+                    <button type="submit" class="btn-save">Salvar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>

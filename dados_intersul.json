@@ -1,0 +1,291 @@
+{
+  "jogadores": [
+    {
+      "id": 1,
+      "nome_completo": "Wagner Fagundes Lucas",
+      "data_nascimento": "1981-11-15",
+      "rg": "30348731-8",
+      "cpf": "22589049862",
+      "posicao": "FIXO",
+      "imagem_url": "/api/jogadores/1/foto?t=1785338268.7085817"
+    },
+    {
+      "id": 2,
+      "nome_completo": "Jonhatas da Silva Oliveira",
+      "data_nascimento": "1991-09-07",
+      "rg": "",
+      "cpf": "",
+      "posicao": "GOLEIRO",
+      "imagem_url": "/api/jogadores/2/foto?t=1785336486.4075942"
+    },
+    {
+      "id": 3,
+      "nome_completo": "José Felipe de Sá",
+      "data_nascimento": "1993-08-20",
+      "rg": "",
+      "cpf": "",
+      "posicao": "ALA",
+      "imagem_url": ""
+    },
+    {
+      "id": 4,
+      "nome_completo": "Bruno Telirio Lopes",
+      "data_nascimento": "1991-11-30",
+      "rg": "",
+      "cpf": "",
+      "posicao": "PIVÔ",
+      "imagem_url": ""
+    },
+    {
+      "id": 5,
+      "nome_completo": "Gikson Miller Ribeiro Oliveira",
+      "data_nascimento": "1994-03-12",
+      "rg": "",
+      "cpf": "",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/5/foto?t=1785338948.7181075"
+    },
+    {
+      "id": 6,
+      "nome_completo": "Thauã Souza da Silva",
+      "data_nascimento": "1995-07-22",
+      "rg": "",
+      "cpf": "",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/6/foto?t=1785336037.0631993"
+    },
+    {
+      "id": 7,
+      "nome_completo": "André Rodrigues de Oliveira",
+      "data_nascimento": "1991-11-03",
+      "rg": "",
+      "cpf": "",
+      "posicao": "ALA / PIVÔ",
+      "imagem_url": "/api/jogadores/7/foto?t=1785339037.6676831"
+    },
+    {
+      "id": 8,
+      "nome_completo": "Diego dos Santos Pereira",
+      "data_nascimento": "1996-10-23",
+      "rg": "398387710",
+      "cpf": "",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/8/foto?t=1785339088.404776"
+    },
+    {
+      "id": 9,
+      "nome_completo": "Matheus Henrique Ribeiro Oliveira",
+      "data_nascimento": "2000-09-11",
+      "rg": "651977784",
+      "cpf": "CPF 90188791850",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/9/foto?t=1785338811.1999147"
+    },
+    {
+      "id": 10,
+      "nome_completo": "Nicolas Stanley Do Nascimento Garcia",
+      "data_nascimento": "2010-01-20",
+      "rg": "",
+      "cpf": "568.166.438-44",
+      "posicao": "PIVÔ",
+      "imagem_url": "/api/jogadores/10/foto?t=1785335584.726364"
+    },
+    {
+      "id": 11,
+      "nome_completo": "Clériston De Sousa Reis",
+      "data_nascimento": "2000-10-24",
+      "rg": "50.760.220-1",
+      "cpf": "",
+      "posicao": "FIXO",
+      "imagem_url": "/api/jogadores/11/foto?t=1785337667.113192"
+    },
+    {
+      "id": 12,
+      "nome_completo": "Caio Henri Aurelio Batista de Souza",
+      "data_nascimento": "2008-10-13",
+      "rg": "57.801.374-5",
+      "cpf": "",
+      "posicao": "GOLEIRO",
+      "imagem_url": "/api/jogadores/12/foto?t=1785335746.2726111"
+    },
+    {
+      "id": 13,
+      "nome_completo": "Richard dos Santos Silva",
+      "data_nascimento": "2004-03-24",
+      "rg": "57.801.374-5",
+      "cpf": "",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/13/foto?t=1785338667.2618537"
+    },
+    {
+      "id": 14,
+      "nome_completo": "Gabriel Alves Fernandes",
+      "data_nascimento": "2006-07-28",
+      "rg": "60.357.450-6",
+      "cpf": "517.108.058-54",
+      "posicao": "ALA",
+      "imagem_url": "/api/jogadores/14/foto?t=1785336375.0782866"
+    },
+    {
+      "id": 15,
+      "nome_completo": "Luiz Fábio Aguiar de Assis",
+      "data_nascimento": "2008-05-19",
+      "rg": "",
+      "cpf": "48298608801",
+      "posicao": "ALA / PIVÔ",
+      "imagem_url": "/api/jogadores/15/foto?t=1785338548.5922897"
+    }
+  ],
+  "mensalidades": {
+    "1": {
+      "maio": "Confirmado",
+      "junho": "Confirmado",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "2": {
+      "maio": "Confirmado",
+      "junho": "Confirmado",
+      "julho": "Confirmado",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "3": {
+      "maio": "Confirmado",
+      "junho": "Confirmado",
+      "julho": "Confirmado",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "4": {
+      "maio": "Confirmado",
+      "junho": "Confirmado",
+      "julho": "Confirmado",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "5": {
+      "maio": "Confirmado",
+      "junho": "Pendente",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "6": {
+      "maio": "Pendente",
+      "junho": "Pendente",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "7": {
+      "maio": "Pendente",
+      "junho": "Pendente",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "8": {
+      "maio": "Em aberto",
+      "junho": "Confirmado",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "9": {
+      "maio": "Em aberto",
+      "junho": "Confirmado",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "10": {
+      "maio": "Em aberto",
+      "junho": "Pendente",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "11": {
+      "maio": "Em aberto",
+      "junho": "Em aberto",
+      "julho": "Confirmado",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "12": {
+      "maio": "Em aberto",
+      "junho": "Em aberto",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "13": {
+      "maio": "Em aberto",
+      "junho": "Em aberto",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "14": {
+      "maio": "Em aberto",
+      "junho": "Em aberto",
+      "julho": "Pendente",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    },
+    "15": {
+      "maio": "Em aberto",
+      "junho": "Em aberto",
+      "julho": "Em aberto",
+      "agosto": "Pendente",
+      "setembro": "Pendente",
+      "outubro": "Pendente",
+      "novembro": "Pendente",
+      "dezembro": "Pendente"
+    }
+  }
+}
