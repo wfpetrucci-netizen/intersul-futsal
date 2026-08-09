@@ -1,13 +1,14 @@
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 # pyrefly: ignore [missing-import]
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import os
 import json
+import base64
 import shutil
 from typing import Optional, Dict
 
@@ -26,17 +27,8 @@ PASTA_BASE = os.path.dirname(os.path.abspath(__file__))
 ARQUIVO_DADOS = os.path.join(PASTA_BASE, "dados_intersul.json")
 PASTA_FOTOS = os.path.join(PASTA_BASE, "fotos_jogadores")
 
-# Certifica-se de que a pasta de fotos existe
+# Certifica-se de que a pasta de fotos existe (mantida para compatibilidade local)
 os.makedirs(PASTA_FOTOS, exist_ok=True)
-
-# Copiar foto inicial do Wagner se existir nas figurinhas antigas
-foto_wagner_origem = os.path.join(PASTA_BASE, "figurinhas", "30-Wagner.jpeg")
-foto_wagner_destino = os.path.join(PASTA_FOTOS, "1.jpg")
-if os.path.exists(foto_wagner_origem) and not os.path.exists(foto_wagner_destino):
-    try:
-        shutil.copy(foto_wagner_origem, foto_wagner_destino)
-    except Exception as e:
-        print(f"Erro ao copiar foto inicial do Wagner: {e}")
 
 # Lista de Diretores Permitidos
 DIRETORES = ["Wagner Fagundes", "Bruno Lopes", "Felipe de Sá"]
@@ -135,7 +127,7 @@ def criar_jogador(jogador: JogadorModel, diretor: str = Depends(verificar_autent
         "rg": jogador.rg,
         "cpf": jogador.cpf,
         "posicao": jogador.posicao,
-        "imagem_url": jogador.imagem_url if jogador.imagem_url else f"/api/jogadores/{novo_id}/foto"
+        "imagem_url": jogador.imagem_url if jogador.imagem_url else ""
     }
     
     jogadores.append(novo_jogador)
@@ -249,44 +241,67 @@ def atualizar_mensalidades_lote(items: list[MensalidadeBatchItem], diretor: str 
 
 
 # 8. Upload de Foto do Jogador
+# Salva como Base64 no JSON para garantir persistência em ambientes efêmeros (Render, etc.)
 @app.post("/api/jogadores/{id}/foto")
 async def upload_foto(id: int, file: UploadFile = File(...), diretor: str = Depends(verificar_autenticacao)):
-    # Determina a extensão do arquivo
     extensao = file.filename.split(".")[-1].lower()
     if extensao not in ["jpg", "jpeg", "png", "webp"]:
         raise HTTPException(status_code=400, detail="Apenas imagens JPG, JPEG, PNG ou WEBP são suportadas.")
     
-    # Remove fotos antigas do mesmo jogador para evitar duplicidade de extensão
-    for ext in ["jpg", "jpeg", "png", "webp"]:
-        foto_antiga = os.path.join(PASTA_FOTOS, f"{id}.{ext}")
-        if os.path.exists(foto_antiga):
-            os.remove(foto_antiga)
-            
-    caminho_foto = os.path.join(PASTA_FOTOS, f"{id}.{extensao}")
-    
-    with open(caminho_foto, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    # Atualiza a URL de imagem no banco do jogador
+    # Lê o arquivo em memória e converte para Base64
+    conteudo = await file.read()
+    if extensao in ("jpg", "jpeg"):
+        mime = "image/jpeg"
+    elif extensao == "png":
+        mime = "image/png"
+    else:
+        mime = "image/webp"
+    b64 = base64.b64encode(conteudo).decode("utf-8")
+    data_url = f"data:{mime};base64,{b64}"
+
+    # Persiste também em disco (útil localmente)
+    try:
+        for ext in ["jpg", "jpeg", "png", "webp"]:
+            foto_antiga = os.path.join(PASTA_FOTOS, f"{id}.{ext}")
+            if os.path.exists(foto_antiga):
+                os.remove(foto_antiga)
+        caminho_foto = os.path.join(PASTA_FOTOS, f"{id}.{extensao}")
+        with open(caminho_foto, "wb") as buffer:
+            buffer.write(conteudo)
+    except Exception:
+        pass
+
+    # Salva a data URL no JSON do jogador (persistente)
     dados = ler_dados()
     for j in dados.get("jogadores", []):
         if j["id"] == id:
-            j["imagem_url"] = f"/api/jogadores/{id}/foto?t={os.path.getmtime(caminho_foto)}"
+            j["imagem_url"] = data_url
             break
     salvar_dados(dados)
     
-    return {"imagem_url": f"/api/jogadores/{id}/foto"}
+    return {"imagem_url": data_url}
 
-# 9. Servir Foto do Jogador
+# 9. Servir Foto do Jogador (compatibilidade com URLs antigas /api/jogadores/{id}/foto)
 @app.get("/api/jogadores/{id}/foto")
 def obter_foto_jogador(id: int):
-    # Busca por qualquer extensão compatível
+    # Tenta servir do disco local (ambiente de desenvolvimento)
     for ext in ["jpg", "jpeg", "png", "webp"]:
         caminho_foto = os.path.join(PASTA_FOTOS, f"{id}.{ext}")
         if os.path.exists(caminho_foto):
             return FileResponse(caminho_foto)
-            
-    # Retorna 404 se não houver foto, para o frontend renderizar silhueta
+
+    # Tenta servir da Base64 armazenada no JSON (ambiente de produção)
+    dados = ler_dados()
+    for j in dados.get("jogadores", []):
+        if j["id"] == id and j.get("imagem_url", "").startswith("data:"):
+            partes = j["imagem_url"].split(",", 1)
+            if len(partes) == 2:
+                header = partes[0]  # ex: data:image/jpeg;base64
+                mime = header.split(":")[1].split(";")[0]
+                img_bytes = base64.b64decode(partes[1])
+                return Response(content=img_bytes, media_type=mime)
+
+    # Retorna 404 se não houver foto
     raise HTTPException(status_code=404, detail="Foto de perfil não cadastrada.")
 
 # Servir arquivos estáticos do frontend

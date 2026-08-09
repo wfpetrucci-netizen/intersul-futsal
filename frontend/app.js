@@ -280,6 +280,9 @@ function setupEventListeners() {
                 if (!uploadRes.ok) {
                     throw new Error('Jogador cadastrado, mas falhou ao salvar a foto de perfil.');
                 }
+                // Atualiza imagem_url no objeto local com o Base64 retornado
+                const uploadData = await uploadRes.json();
+                savedPlayer.imagem_url = uploadData.imagem_url || savedPlayer.imagem_url;
             }
             
             closePlayerModal();
@@ -392,7 +395,10 @@ function renderPlayersGrid() {
         const card = document.createElement('div');
         card.classList.add('player-card');
         
-        const photoUrl = p.imagem_url ? `${API_BASE}${p.imagem_url}` : '';
+        // Se a URL já é Base64 (data:...) usa diretamente, caso contrário adiciona o API_BASE
+        const photoUrl = p.imagem_url
+            ? (p.imagem_url.startsWith('data:') ? p.imagem_url : `${API_BASE}${p.imagem_url}`)
+            : '';
         const age = p.data_nascimento ? calculateAge(p.data_nascimento) : 'N/A';
         const formattedBirth = p.data_nascimento ? formatDate(p.data_nascimento) : 'Não informada';
         
@@ -623,7 +629,10 @@ function openPlayerModal(player = null) {
         playerCpfInput.value = player.cpf || '';
         
         if (player.imagem_url) {
-            playerPhotoImg.src = `${API_BASE}${player.imagem_url}`;
+            // Suporte a Base64 (data:...) e URLs relativas
+            playerPhotoImg.src = player.imagem_url.startsWith('data:')
+                ? player.imagem_url
+                : `${API_BASE}${player.imagem_url}`;
             playerPhotoImg.classList.remove('hide');
             placeholderIcon.classList.add('hide');
         } else {
