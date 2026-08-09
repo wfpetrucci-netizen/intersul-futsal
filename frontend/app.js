@@ -9,6 +9,10 @@ let payments = {};
 let selectedPlayerId = null;
 let activeTab = 'tab-players';
 let currentSearchQuery = '';
+let selectedMonthFilter = 'todos';
+let selectedStatusFilter = 'todos';
+let paymentSearchQuery = '';
+let stagedPaymentChanges = {};
 
 // Elementos do DOM
 const loginContainer = document.getElementById('login-container');
@@ -33,6 +37,12 @@ const btnAddPlayer = document.getElementById('btn-add-player');
 const playersGrid = document.getElementById('players-grid');
 
 const paymentsTableBody = document.getElementById('payments-table-body');
+const filterMonthSelect = document.getElementById('filter-month');
+const filterStatusSelect = document.getElementById('filter-status');
+const paymentSearchInput = document.getElementById('payment-search-input');
+const btnSavePayments = document.getElementById('btn-save-payments');
+const paymentToast = document.getElementById('payment-toast');
+const toastMessage = document.getElementById('toast-message');
 
 // Elementos do Modal de Jogador
 const playerModal = document.getElementById('player-modal');
@@ -158,6 +168,38 @@ function setupEventListeners() {
         currentSearchQuery = e.target.value.toLowerCase().trim();
         renderPlayersGrid();
     });
+
+    // Filtro por Mês (Controle de Mensalidades)
+    if (filterMonthSelect) {
+        filterMonthSelect.addEventListener('change', (e) => {
+            selectedMonthFilter = e.target.value;
+            updateStats();
+            renderPaymentsTable();
+        });
+    }
+
+    // Filtro por Status / Pendências (Controle de Mensalidades)
+    if (filterStatusSelect) {
+        filterStatusSelect.addEventListener('change', (e) => {
+            selectedStatusFilter = e.target.value;
+            renderPaymentsTable();
+        });
+    }
+
+    // Busca Rápida na Tabela de Mensalidades
+    if (paymentSearchInput) {
+        paymentSearchInput.addEventListener('input', (e) => {
+            paymentSearchQuery = e.target.value.toLowerCase().trim();
+            renderPaymentsTable();
+        });
+    }
+
+    // Botão Salvar Alterações das Mensalidades
+    if (btnSavePayments) {
+        btnSavePayments.addEventListener('click', async () => {
+            await saveAllPaymentChanges();
+        });
+    }
 
     // Botão Cadastrar Jogador (abre modal)
     btnAddPlayer.addEventListener('click', () => {
@@ -299,16 +341,24 @@ async function refreshData() {
 function updateStats() {
     statTotalPlayers.textContent = players.length;
     
-    // Calcula mensalidades de Julho (mês base de referência na imagem)
+    // Mês de referência (se 'todos', usa 'julho' por padrão)
+    const refMonth = selectedMonthFilter !== 'todos' ? selectedMonthFilter : 'julho';
+    const refMonthName = refMonth.charAt(0).toUpperCase() + refMonth.slice(1);
+    
+    const labelOk = document.getElementById('stat-monthly-ok-label');
+    const labelPending = document.getElementById('stat-monthly-pending-label');
+    if (labelOk) labelOk.textContent = `Mensalidades Confirmadas (${refMonthName})`;
+    if (labelPending) labelPending.textContent = `Mensalidades Pendentes (${refMonthName})`;
+    
     let okCount = 0;
     let pendingCount = 0;
     
     Object.keys(payments).forEach(playerId => {
         const playerPay = payments[playerId];
-        if (playerPay && playerPay.julho) {
-            if (playerPay.julho === 'Confirmado') {
+        if (playerPay && playerPay[refMonth]) {
+            if (playerPay[refMonth] === 'Confirmado') {
                 okCount++;
-            } else if (playerPay.julho === 'Pendente') {
+            } else if (playerPay[refMonth] === 'Pendente') {
                 pendingCount++;
             }
         }
@@ -375,7 +425,54 @@ function renderPaymentsTable() {
     
     const meses = ['maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
     
-    players.forEach(p => {
+    // Destaca o cabeçalho da coluna do mês selecionado
+    const thElements = document.querySelectorAll('.payments-table th');
+    thElements.forEach((th, index) => {
+        if (index >= 2) {
+            const monthKey = meses[index - 2];
+            if (selectedMonthFilter === monthKey) {
+                th.classList.add('active-column-header');
+            } else {
+                th.classList.remove('active-column-header');
+            }
+        }
+    });
+
+    // Filtragem dos jogadores
+    const filteredPlayers = players.filter(p => {
+        // 1. Filtro por busca rápida (nome ou posição)
+        const nameMatch = p.nome_completo.toLowerCase().includes(paymentSearchQuery);
+        const posMatch = p.posicao.toLowerCase().includes(paymentSearchQuery);
+        if (!nameMatch && !posMatch) return false;
+        
+        // 2. Filtro por status / pendências
+        if (selectedStatusFilter !== 'todos') {
+            const playerPay = payments[p.id] || {};
+            if (selectedMonthFilter !== 'todos') {
+                const currentStatus = playerPay[selectedMonthFilter] || 'Em aberto';
+                if (currentStatus !== selectedStatusFilter) return false;
+            } else {
+                const hasStatusInAnyMonth = meses.some(m => (playerPay[m] || 'Em aberto') === selectedStatusFilter);
+                if (!hasStatusInAnyMonth) return false;
+            }
+        }
+        
+        return true;
+    });
+
+    if (filteredPlayers.length === 0) {
+        paymentsTableBody.innerHTML = `
+            <tr>
+                <td colspan="10" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-filter-circle-xmark" style="font-size: 2.2rem; margin-bottom: 0.5rem; display: block; color: var(--intersul-blue);"></i>
+                    Nenhum registro encontrado para os filtros selecionados.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    filteredPlayers.forEach(p => {
         const tr = document.createElement('tr');
         
         // Coluna Posição
@@ -393,6 +490,10 @@ function renderPaymentsTable() {
         // Colunas de Meses de Pagamento
         meses.forEach(mes => {
             const tdMes = document.createElement('td');
+            if (selectedMonthFilter === mes) {
+                tdMes.classList.add('active-column-cell');
+            }
+            
             const playerPay = payments[p.id] || {};
             const status = playerPay[mes] || 'Em aberto';
             
@@ -404,46 +505,39 @@ function renderPaymentsTable() {
             select.className = 'status-dropdown';
             select.setAttribute('data-status', status);
             
-            const optConfirm = document.createElement('option');
-            optConfirm.value = 'Confirmado';
-            optConfirm.textContent = 'Confirmado';
-            optConfirm.selected = status === 'Confirmado';
+            const optionsData = [
+                { value: 'Confirmado', label: 'Confirmado' },
+                { value: 'Pendente', label: 'Pendente' },
+                { value: 'Em aberto', label: 'Em aberto' },
+                { value: 'Isento', label: 'Isento' }
+            ];
+
+            optionsData.forEach(optInfo => {
+                const opt = document.createElement('option');
+                opt.value = optInfo.value;
+                opt.textContent = optInfo.label;
+                opt.selected = status === optInfo.value || (optInfo.value === 'Em aberto' && status === '');
+                select.appendChild(opt);
+            });
             
-            const optPending = document.createElement('option');
-            optPending.value = 'Pendente';
-            optPending.textContent = 'Pendente';
-            optPending.selected = status === 'Pendente';
-            
-            const optOpen = document.createElement('option');
-            optOpen.value = 'Em aberto';
-            optOpen.textContent = 'Em aberto';
-            optOpen.selected = status === 'Em aberto' || status === '';
-            
-            select.appendChild(optConfirm);
-            select.appendChild(optPending);
-            select.appendChild(optOpen);
-            
-            // Salvar no servidor em tempo real ao alterar
-            select.addEventListener('change', async (e) => {
+            // Ao alterar o dropdown, estagia a alteração e habilita o botão Salvar
+            select.addEventListener('change', (e) => {
                 const newStatus = e.target.value;
                 select.setAttribute('data-status', newStatus);
                 
-                try {
-                    const res = await fetch(`${API_BASE}/api/mensalidades/${p.id}`, {
-                        method: 'PUT',
-                        headers: getHeaders(),
-                        body: JSON.stringify({ mes, status: newStatus })
-                    });
-                    
-                    if (!res.ok) throw new Error('Erro ao salvar status de pagamento');
-                    
-                    // Atualiza dados locais
-                    if (!payments[p.id]) payments[p.id] = {};
-                    payments[p.id][mes] = newStatus;
-                    updateStats();
-                } catch (error) {
-                    alert(error.message);
-                }
+                const stagedKey = `${p.id}_${mes}`;
+                stagedPaymentChanges[stagedKey] = {
+                    jogador_id: p.id,
+                    mes: mes,
+                    status: newStatus
+                };
+                
+                // Atualiza cache local para refletir imediatamente
+                if (!payments[p.id]) payments[p.id] = {};
+                payments[p.id][mes] = newStatus;
+                
+                updateSaveButtonState();
+                updateStats();
             });
             
             selectWrapper.appendChild(select);
@@ -453,6 +547,64 @@ function renderPaymentsTable() {
         
         paymentsTableBody.appendChild(tr);
     });
+}
+
+// 6.1 Operações de Salvamento e Notificações
+async function saveAllPaymentChanges() {
+    const changesArray = Object.values(stagedPaymentChanges);
+    if (changesArray.length === 0) {
+        showToast('Nenhuma alteração pendente para salvar.');
+        return;
+    }
+    
+    try {
+        if (btnSavePayments) {
+            btnSavePayments.disabled = true;
+            btnSavePayments.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+        }
+        
+        const response = await fetch(`${API_BASE}/api/mensalidades/batch`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(changesArray)
+        });
+        
+        if (!response.ok) throw new Error('Erro ao salvar mensalidades em lote.');
+        
+        stagedPaymentChanges = {};
+        updateSaveButtonState();
+        showToast('Alterações salvas com sucesso!');
+        refreshData();
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        if (btnSavePayments) {
+            btnSavePayments.disabled = false;
+        }
+        updateSaveButtonState();
+    }
+}
+
+function updateSaveButtonState() {
+    const count = Object.keys(stagedPaymentChanges).length;
+    if (!btnSavePayments) return;
+    
+    if (count > 0) {
+        btnSavePayments.classList.add('has-changes');
+        btnSavePayments.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações (${count})`;
+    } else {
+        btnSavePayments.classList.remove('has-changes');
+        btnSavePayments.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
+    }
+}
+
+function showToast(message) {
+    if (!paymentToast || !toastMessage) return;
+    toastMessage.textContent = message;
+    paymentToast.classList.remove('hide');
+    setTimeout(() => {
+        paymentToast.classList.add('hide');
+    }, 4000);
 }
 
 // 7. Modals Operações

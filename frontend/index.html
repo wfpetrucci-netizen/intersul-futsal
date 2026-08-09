@@ -85,11 +85,11 @@
                     <span class="stat-value" id="stat-total-players">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Mensalidades Confirmadas (Julho)</span>
+                    <span class="stat-label" id="stat-monthly-ok-label">Mensalidades Confirmadas (Julho)</span>
                     <span class="stat-value highlight" id="stat-monthly-ok">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Mensalidades Pendentes</span>
+                    <span class="stat-label" id="stat-monthly-pending-label">Mensalidades Pendentes (Julho)</span>
                     <span class="stat-value danger" id="stat-monthly-pending">0</span>
                 </div>
             </div>
@@ -131,7 +131,48 @@
                 <section class="controls-section">
                     <div class="payment-header-row">
                         <h3><i class="fa-solid fa-calendar-check"></i> Controle de Pagamentos de Mensalidades - 2026</h3>
-                        <p class="table-tip"><i class="fa-solid fa-circle-info"></i> Altere os valores diretamente selecionando o novo status na tabela.</p>
+                        <p class="table-tip"><i class="fa-solid fa-circle-info"></i> Selecione o status na tabela e clique em Salvar Alterações para registrar.</p>
+                    </div>
+
+                    <div class="payment-filters-row">
+                        <div class="filter-group">
+                            <label for="filter-month"><i class="fa-solid fa-calendar-days"></i> Filtrar Mês</label>
+                            <select id="filter-month">
+                                <option value="todos">Todos os Meses</option>
+                                <option value="maio">Maio</option>
+                                <option value="junho">Junho</option>
+                                <option value="julho">Julho</option>
+                                <option value="agosto">Agosto</option>
+                                <option value="setembro">Setembro</option>
+                                <option value="outubro">Outubro</option>
+                                <option value="novembro">Novembro</option>
+                                <option value="dezembro">Dezembro</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-status"><i class="fa-solid fa-filter"></i> Pendências / Status</label>
+                            <select id="filter-status">
+                                <option value="todos">Todos os Status</option>
+                                <option value="Pendente">Apenas Pendentes</option>
+                                <option value="Confirmado">Confirmados</option>
+                                <option value="Em aberto">Em aberto</option>
+                                <option value="Isento">Isentos</option>
+                            </select>
+                        </div>
+
+                        <div class="search-wrapper payment-search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="payment-search-input" placeholder="Buscar por jogador ou posição...">
+                        </div>
+
+                        <button id="btn-save-payments" class="btn-primary btn-save-payments">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+                        </button>
+                    </div>
+                    
+                    <div id="payment-toast" class="toast-notification hide">
+                        <i class="fa-solid fa-circle-check"></i> <span id="toast-message">Alterações salvas com sucesso!</span>
                     </div>
                 </section>
                 
