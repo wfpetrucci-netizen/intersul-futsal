@@ -342,33 +342,55 @@ async function refreshData() {
 
 // 4. Calcular Estatísticas do Dashboard
 function updateStats() {
-    statTotalPlayers.textContent = players.length;
+    if (statTotalPlayers) statTotalPlayers.textContent = players.length;
     
-    // Mês de referência (se 'todos', usa 'julho' por padrão)
-    const refMonth = selectedMonthFilter !== 'todos' ? selectedMonthFilter : 'julho';
-    const refMonthName = refMonth.charAt(0).toUpperCase() + refMonth.slice(1);
+    const meses = ['maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
     
     const labelOk = document.getElementById('stat-monthly-ok-label');
     const labelPending = document.getElementById('stat-monthly-pending-label');
-    if (labelOk) labelOk.textContent = `Mensalidades Confirmadas (${refMonthName})`;
-    if (labelPending) labelPending.textContent = `Mensalidades Pendentes (${refMonthName})`;
+    const labelExempt = document.getElementById('stat-monthly-exempt-label');
+    const statExempt = document.getElementById('stat-monthly-exempt');
     
     let okCount = 0;
     let pendingCount = 0;
+    let exemptCount = 0;
     
-    Object.keys(payments).forEach(playerId => {
-        const playerPay = payments[playerId];
-        if (playerPay && playerPay[refMonth]) {
-            if (playerPay[refMonth] === 'Confirmado') {
-                okCount++;
-            } else if (playerPay[refMonth] === 'Pendente') {
-                pendingCount++;
+    if (selectedMonthFilter === 'todos') {
+        if (labelOk) labelOk.textContent = 'Mensalidades Confirmadas (Todos os Meses)';
+        if (labelPending) labelPending.textContent = 'Mensalidades Pendentes (Todos os Meses)';
+        if (labelExempt) labelExempt.textContent = 'Mensalidades Isentas (Todos os Meses)';
+        
+        Object.keys(payments).forEach(playerId => {
+            const playerPay = payments[playerId];
+            if (playerPay) {
+                meses.forEach(m => {
+                    const st = playerPay[m] || 'Pendente';
+                    if (st === 'Confirmado') okCount++;
+                    else if (st === 'Pendente') pendingCount++;
+                    else if (st === 'Isento') exemptCount++;
+                });
             }
-        }
-    });
+        });
+    } else {
+        const refMonthName = selectedMonthFilter.charAt(0).toUpperCase() + selectedMonthFilter.slice(1);
+        if (labelOk) labelOk.textContent = `Mensalidades Confirmadas (${refMonthName})`;
+        if (labelPending) labelPending.textContent = `Mensalidades Pendentes (${refMonthName})`;
+        if (labelExempt) labelExempt.textContent = `Mensalidades Isentas (${refMonthName})`;
+        
+        Object.keys(payments).forEach(playerId => {
+            const playerPay = payments[playerId];
+            if (playerPay) {
+                const st = playerPay[selectedMonthFilter] || 'Pendente';
+                if (st === 'Confirmado') okCount++;
+                else if (st === 'Pendente') pendingCount++;
+                else if (st === 'Isento') exemptCount++;
+            }
+        });
+    }
     
-    statMonthlyOk.textContent = okCount;
-    statMonthlyPending.textContent = pendingCount;
+    if (statMonthlyOk) statMonthlyOk.textContent = okCount;
+    if (statMonthlyPending) statMonthlyPending.textContent = pendingCount;
+    if (statExempt) statExempt.textContent = exemptCount;
 }
 
 // 5. Renderizar o Grid de Jogadores

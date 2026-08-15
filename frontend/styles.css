@@ -382,6 +382,10 @@ header .subtitle {
     color: var(--status-pending-text);
 }
 
+.stat-value.info {
+    color: var(--status-exempt-text);
+}
+
 /* Navigation Tabs */
 .navigation-tabs {
     display: flex;
