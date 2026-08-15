@@ -53,9 +53,9 @@ class LoginRequest(BaseModel):
 
 class JogadorModel(BaseModel):
     nome_completo: str
-    data_nascimento: str
-    rg: str
-    cpf: str
+    data_nascimento: Optional[str] = ""
+    rg: Optional[str] = ""
+    cpf: Optional[str] = ""
     posicao: str
     imagem_url: Optional[str] = ""
 
@@ -206,10 +206,10 @@ def atualizar_mensalidade(id: int, req: MensalidadeUpdateRequest, diretor: str =
     mensalidades = dados.setdefault("mensalidades", {})
     
     str_id = str(id)
-    if str_id not in mensalidades:
-        raise HTTPException(status_code=404, detail="Jogador não possui mensalidades registradas.")
-    
     meses_validos = ["maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+    if str_id not in mensalidades:
+        mensalidades[str_id] = {m: "Pendente" for m in meses_validos}
+    
     if req.mes not in meses_validos:
         raise HTTPException(status_code=400, detail="Mês inválido.")
         
@@ -232,7 +232,9 @@ def atualizar_mensalidades_lote(items: list[MensalidadeBatchItem], diretor: str 
     atualizados = 0
     for item in items:
         str_id = str(item.jogador_id)
-        if str_id in mensalidades and item.mes in meses_validos and item.status in status_validos:
+        if str_id not in mensalidades:
+            mensalidades[str_id] = {m: "Pendente" for m in meses_validos}
+        if item.mes in meses_validos and item.status in status_validos:
             mensalidades[str_id][item.mes] = item.status
             atualizados += 1
             
@@ -304,9 +306,9 @@ def obter_foto_jogador(id: int):
     # Retorna 404 se não houver foto
     raise HTTPException(status_code=404, detail="Foto de perfil não cadastrada.")
 
-# Servir arquivos estáticos do frontend
-PASTA_FRONTEND = os.path.abspath(os.path.join(PASTA_BASE, "..", "frontend"))
+# Servir arquivos estáticos do frontend (prioriza pasta frontend dentro do backend)
+PASTA_FRONTEND = os.path.join(PASTA_BASE, "frontend")
 if not os.path.exists(PASTA_FRONTEND):
-    PASTA_FRONTEND = os.path.join(PASTA_BASE, "frontend")
+    PASTA_FRONTEND = os.path.abspath(os.path.join(PASTA_BASE, "..", "frontend"))
 if os.path.exists(PASTA_FRONTEND):
     app.mount("/", StaticFiles(directory=PASTA_FRONTEND, html=True), name="frontend")
