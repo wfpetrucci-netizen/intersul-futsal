@@ -85,15 +85,15 @@
                     <span class="stat-value" id="stat-total-players">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label" id="stat-monthly-ok-label">Mensalidades Confirmadas (Julho)</span>
+                    <span class="stat-label" id="stat-monthly-ok-label">Mensalidades Confirmadas</span>
                     <span class="stat-value highlight" id="stat-monthly-ok">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label" id="stat-monthly-pending-label">Mensalidades Pendentes (Julho)</span>
+                    <span class="stat-label" id="stat-monthly-pending-label">Mensalidades Pendentes</span>
                     <span class="stat-value danger" id="stat-monthly-pending">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label" id="stat-monthly-exempt-label">Mensalidades Isentas (Julho)</span>
+                    <span class="stat-label" id="stat-monthly-exempt-label">Mensalidades Isentas</span>
                     <span class="stat-value info" id="stat-monthly-exempt">0</span>
                 </div>
             </div>
@@ -117,7 +117,21 @@
                     <div class="search-and-actions">
                         <div class="search-wrapper">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" id="search-input" placeholder="Buscar jogador por nome ou posição...">
+                            <input type="text" id="search-input" placeholder="Buscar jogador por nome...">
+                        </div>
+                        <div class="filter-group mini-filter">
+                            <select id="player-pos-filter" title="Filtrar por Posição">
+                                <option value="todos">Todas as Posições</option>
+                                <option value="GOLEIRO">Goleiro</option>
+                                <option value="FIXO">Fixo</option>
+                                <option value="ALA">Ala</option>
+                                <option value="PIVÔ">Pivô</option>
+                                <option value="ALA / PIVÔ">Ala / Pivô</option>
+                                <option value="DIRETOR">Diretor</option>
+                            </select>
+                        </div>
+                        <div class="results-badge" id="players-count-badge">
+                            <i class="fa-solid fa-user-group"></i> <span id="players-count-text">0 jogadores</span>
                         </div>
                         <button id="btn-add-player" class="btn-primary">
                             <i class="fa-solid fa-plus"></i> Novo Jogador
@@ -140,7 +154,7 @@
 
                     <div class="payment-filters-row">
                         <div class="filter-group">
-                            <label for="filter-month"><i class="fa-solid fa-calendar-days"></i> Filtrar Mês</label>
+                            <label for="filter-month"><i class="fa-solid fa-calendar-days"></i> Mês Focado</label>
                             <select id="filter-month">
                                 <option value="todos">Todos os Meses</option>
                                 <option value="maio">Maio</option>
@@ -155,24 +169,52 @@
                         </div>
 
                         <div class="filter-group">
-                            <label for="filter-status"><i class="fa-solid fa-filter"></i> Pendências / Status</label>
+                            <label for="filter-status"><i class="fa-solid fa-filter"></i> Status de Pagamento</label>
                             <select id="filter-status">
                                 <option value="todos">Todos os Status</option>
-                                <option value="Pendente">Apenas Pendentes</option>
-                                <option value="Confirmado">Confirmados</option>
+                                <option value="Confirmado">Confirmado</option>
+                                <option value="Pendente">Pendente</option>
                                 <option value="Em aberto">Em aberto</option>
-                                <option value="Isento">Isentos</option>
+                                <option value="Isento">Isento</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-pos"><i class="fa-solid fa-shield-cat"></i> Posição</label>
+                            <select id="filter-pos">
+                                <option value="todos">Todas as Posições</option>
+                                <option value="GOLEIRO">Goleiro</option>
+                                <option value="FIXO">Fixo</option>
+                                <option value="ALA">Ala</option>
+                                <option value="PIVÔ">Pivô</option>
+                                <option value="ALA / PIVÔ">Ala / Pivô</option>
+                                <option value="DIRETOR">Diretor</option>
                             </select>
                         </div>
 
                         <div class="search-wrapper payment-search-wrapper">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" id="payment-search-input" placeholder="Buscar por jogador ou posição...">
+                            <input type="text" id="payment-search-input" placeholder="Buscar por nome do jogador...">
                         </div>
 
-                        <button id="btn-save-payments" class="btn-primary btn-save-payments">
-                            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
-                        </button>
+                        <div class="filters-action-group">
+                            <button id="btn-reset-filters" class="btn-reset-filters" title="Resetar filtros de busca">
+                                <i class="fa-solid fa-rotate-left"></i> Limpar
+                            </button>
+
+                            <button id="btn-save-payments" class="btn-primary btn-save-payments">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters-meta-bar">
+                        <div class="results-badge" id="payments-count-badge">
+                            <i class="fa-solid fa-list-check"></i> <span id="payments-count-text">Exibindo 0 de 0 registros</span>
+                        </div>
+                        <div id="active-filter-tags" class="active-filter-tags">
+                            <!-- Dynamic filter pills appear here -->
+                        </div>
                     </div>
                     
                     <div id="payment-toast" class="toast-notification hide">

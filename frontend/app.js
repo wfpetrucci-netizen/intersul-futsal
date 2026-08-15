@@ -9,8 +9,10 @@ let payments = {};
 let selectedPlayerId = null;
 let activeTab = 'tab-players';
 let currentSearchQuery = '';
+let selectedPlayerPosFilter = 'todos';
 let selectedMonthFilter = 'todos';
 let selectedStatusFilter = 'todos';
+let selectedPosFilter = 'todos';
 let paymentSearchQuery = '';
 let stagedPaymentChanges = {};
 
@@ -33,14 +35,20 @@ const navTabs = document.querySelectorAll('.nav-tab');
 const tabContents = document.querySelectorAll('.tab-content');
 
 const searchInput = document.getElementById('search-input');
+const playerPosFilterSelect = document.getElementById('player-pos-filter');
+const playersCountText = document.getElementById('players-count-text');
 const btnAddPlayer = document.getElementById('btn-add-player');
 const playersGrid = document.getElementById('players-grid');
 
 const paymentsTableBody = document.getElementById('payments-table-body');
 const filterMonthSelect = document.getElementById('filter-month');
 const filterStatusSelect = document.getElementById('filter-status');
+const filterPosSelect = document.getElementById('filter-pos');
 const paymentSearchInput = document.getElementById('payment-search-input');
+const btnResetFilters = document.getElementById('btn-reset-filters');
 const btnSavePayments = document.getElementById('btn-save-payments');
+const paymentsCountText = document.getElementById('payments-count-text');
+const activeFilterTags = document.getElementById('active-filter-tags');
 const paymentToast = document.getElementById('payment-toast');
 const toastMessage = document.getElementById('toast-message');
 
@@ -163,11 +171,21 @@ function setupEventListeners() {
         });
     });
 
-    // Busca de Jogadores
-    searchInput.addEventListener('input', (e) => {
-        currentSearchQuery = e.target.value.toLowerCase().trim();
-        renderPlayersGrid();
-    });
+    // Busca de Jogadores por Nome
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchQuery = e.target.value.toLowerCase().trim();
+            renderPlayersGrid();
+        });
+    }
+
+    // Filtro de Jogadores por Posição
+    if (playerPosFilterSelect) {
+        playerPosFilterSelect.addEventListener('change', (e) => {
+            selectedPlayerPosFilter = e.target.value;
+            renderPlayersGrid();
+        });
+    }
 
     // Filtro por Mês (Controle de Mensalidades)
     if (filterMonthSelect) {
@@ -186,10 +204,36 @@ function setupEventListeners() {
         });
     }
 
+    // Filtro por Posição (Controle de Mensalidades)
+    if (filterPosSelect) {
+        filterPosSelect.addEventListener('change', (e) => {
+            selectedPosFilter = e.target.value;
+            renderPaymentsTable();
+        });
+    }
+
     // Busca Rápida na Tabela de Mensalidades
     if (paymentSearchInput) {
         paymentSearchInput.addEventListener('input', (e) => {
             paymentSearchQuery = e.target.value.toLowerCase().trim();
+            renderPaymentsTable();
+        });
+    }
+
+    // Botão Limpar Filtros
+    if (btnResetFilters) {
+        btnResetFilters.addEventListener('click', () => {
+            selectedMonthFilter = 'todos';
+            selectedStatusFilter = 'todos';
+            selectedPosFilter = 'todos';
+            paymentSearchQuery = '';
+
+            if (filterMonthSelect) filterMonthSelect.value = 'todos';
+            if (filterStatusSelect) filterStatusSelect.value = 'todos';
+            if (filterPosSelect) filterPosSelect.value = 'todos';
+            if (paymentSearchInput) paymentSearchInput.value = '';
+
+            updateStats();
             renderPaymentsTable();
         });
     }
@@ -399,9 +443,14 @@ function renderPlayersGrid() {
     
     const filteredPlayers = players.filter(p => {
         const nameMatch = p.nome_completo.toLowerCase().includes(currentSearchQuery);
-        const posMatch = p.posicao.toLowerCase().includes(currentSearchQuery);
-        return nameMatch || posMatch;
+        const posSearchMatch = p.posicao.toLowerCase().includes(currentSearchQuery);
+        const posFilterMatch = selectedPlayerPosFilter === 'todos' || p.posicao.toUpperCase() === selectedPlayerPosFilter.toUpperCase();
+        return (nameMatch || posSearchMatch) && posFilterMatch;
     });
+    
+    if (playersCountText) {
+        playersCountText.textContent = `${filteredPlayers.length} de ${players.length} jogadores`;
+    }
     
     if (filteredPlayers.length === 0) {
         playersGrid.innerHTML = `
@@ -468,12 +517,16 @@ function renderPaymentsTable() {
 
     // Filtragem dos jogadores
     const filteredPlayers = players.filter(p => {
-        // 1. Filtro por busca rápida (nome ou posição)
-        const nameMatch = p.nome_completo.toLowerCase().includes(paymentSearchQuery);
-        const posMatch = p.posicao.toLowerCase().includes(paymentSearchQuery);
-        if (!nameMatch && !posMatch) return false;
-        
-        // 2. Filtro por status / pendências
+        // 1. Filtro por busca rápida (nome do jogador)
+        const nameMatch = paymentSearchQuery === '' || p.nome_completo.toLowerCase().includes(paymentSearchQuery);
+        if (!nameMatch) return false;
+
+        // 2. Filtro por Posição
+        if (selectedPosFilter !== 'todos') {
+            if (p.posicao.toUpperCase() !== selectedPosFilter.toUpperCase()) return false;
+        }
+
+        // 3. Filtro por status / pendências
         if (selectedStatusFilter !== 'todos') {
             const playerPay = payments[p.id] || {};
             if (selectedMonthFilter !== 'todos') {
@@ -487,6 +540,13 @@ function renderPaymentsTable() {
         
         return true;
     });
+
+    // Atualiza estatística de contagem de registros visíveis
+    if (paymentsCountText) {
+        paymentsCountText.textContent = `Exibindo ${filteredPlayers.length} de ${players.length} registros`;
+    }
+
+    renderActiveFilterTags();
 
     if (filteredPlayers.length === 0) {
         paymentsTableBody.innerHTML = `
@@ -574,6 +634,51 @@ function renderPaymentsTable() {
         });
         
         paymentsTableBody.appendChild(tr);
+    });
+}
+
+// Renderizar pílulas de filtros ativos com botão remover rápido
+function renderActiveFilterTags() {
+    if (!activeFilterTags) return;
+    activeFilterTags.innerHTML = '';
+
+    const tags = [];
+    if (selectedMonthFilter !== 'todos') {
+        const monthLabel = selectedMonthFilter.charAt(0).toUpperCase() + selectedMonthFilter.slice(1);
+        tags.push({ key: 'month', label: `Mês: ${monthLabel}` });
+    }
+    if (selectedStatusFilter !== 'todos') {
+        tags.push({ key: 'status', label: `Status: ${selectedStatusFilter}` });
+    }
+    if (selectedPosFilter !== 'todos') {
+        tags.push({ key: 'pos', label: `Posição: ${selectedPosFilter}` });
+    }
+    if (paymentSearchQuery !== '') {
+        tags.push({ key: 'search', label: `Busca: "${paymentSearchQuery}"` });
+    }
+
+    tags.forEach(tag => {
+        const pill = document.createElement('span');
+        pill.className = 'filter-tag';
+        pill.innerHTML = `${tag.label} <i class="fa-solid fa-xmark"></i>`;
+        pill.addEventListener('click', () => {
+            if (tag.key === 'month') {
+                selectedMonthFilter = 'todos';
+                if (filterMonthSelect) filterMonthSelect.value = 'todos';
+                updateStats();
+            } else if (tag.key === 'status') {
+                selectedStatusFilter = 'todos';
+                if (filterStatusSelect) filterStatusSelect.value = 'todos';
+            } else if (tag.key === 'pos') {
+                selectedPosFilter = 'todos';
+                if (filterPosSelect) filterPosSelect.value = 'todos';
+            } else if (tag.key === 'search') {
+                paymentSearchQuery = '';
+                if (paymentSearchInput) paymentSearchInput.value = '';
+            }
+            renderPaymentsTable();
+        });
+        activeFilterTags.appendChild(pill);
     });
 }
 

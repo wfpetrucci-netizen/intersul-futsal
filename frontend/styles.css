@@ -794,17 +794,26 @@ header .subtitle {
 /* Filtros e Controles da Tabela de Mensalidades */
 .payment-filters-row {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    align-items: flex-end;
+    gap: 1.2rem;
     margin-top: 1.2rem;
     flex-wrap: wrap;
+    background: rgba(10, 12, 18, 0.4);
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(88, 166, 255, 0.1);
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    min-width: 160px;
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-group.mini-filter {
+    flex: 0 0 160px;
 }
 
 .filter-group label {
@@ -814,41 +823,82 @@ header .subtitle {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .filter-group select {
-    background: rgba(10, 12, 18, 0.85);
+    background: rgba(10, 12, 18, 0.95);
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 0.65rem 0.9rem;
+    padding: 0.75rem 0.9rem;
     color: #ffffff;
     font-family: inherit;
     font-size: 0.88rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .filter-group select:focus {
     outline: none;
     border-color: var(--border-focus);
-    box-shadow: 0 0 10px rgba(10, 82, 190, 0.25);
+    box-shadow: 0 0 12px rgba(10, 82, 190, 0.3);
 }
 
 .filter-group select option {
     background-color: var(--bg-card-solid);
     color: #ffffff;
+    padding: 0.5rem;
 }
 
 .payment-search-wrapper {
-    flex-grow: 1;
+    flex: 2;
+    min-width: 220px;
     margin-top: auto;
+}
+
+.filters-action-group {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: auto;
+}
+
+.btn-reset-filters {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.75rem 1.1rem;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-reset-filters:hover {
+    background: rgba(255, 95, 126, 0.15);
+    color: #ff5f7e;
+    border-color: rgba(255, 95, 126, 0.4);
+}
+
+.btn-reset-filters:hover i {
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease;
 }
 
 .btn-save-payments {
     margin-top: auto;
     background: linear-gradient(135deg, var(--intersul-blue), var(--intersul-blue-hover));
     white-space: nowrap;
+    padding: 0.75rem 1.4rem;
 }
 
 .btn-save-payments.has-changes {
@@ -861,6 +911,56 @@ header .subtitle {
     0% { transform: scale(1); }
     50% { transform: scale(1.03); }
     100% { transform: scale(1); }
+}
+
+/* Meta Bar dos Filtros (Badges e Tags) */
+.filters-meta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.results-badge {
+    background: rgba(10, 82, 190, 0.15);
+    border: 1px solid rgba(10, 82, 190, 0.3);
+    color: #58a6ff;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.active-filter-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    background: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.25);
+    color: #ffffff;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-tag:hover {
+    background: rgba(255, 95, 126, 0.2);
+    border-color: rgba(255, 95, 126, 0.4);
+    color: #ff5f7e;
 }
 
 .toast-notification {
