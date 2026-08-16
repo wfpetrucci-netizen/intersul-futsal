@@ -608,8 +608,8 @@ function renderPaymentsTable() {
                 select.appendChild(opt);
             });
             
-            // Ao alterar o dropdown, estagia a alteração e habilita o botão Salvar
-            select.addEventListener('change', (e) => {
+            // Ao alterar o dropdown, estagia a alteração, tenta auto-salvar e habilita o botão Salvar
+            select.addEventListener('change', async (e) => {
                 const newStatus = e.target.value;
                 select.setAttribute('data-status', newStatus);
                 
@@ -626,6 +626,22 @@ function renderPaymentsTable() {
                 
                 updateSaveButtonState();
                 updateStats();
+
+                // Tenta auto-salvar alteração individual no servidor
+                try {
+                    const res = await fetch(`${API_BASE}/api/mensalidades/${p.id}`, {
+                        method: 'PUT',
+                        headers: getHeaders(),
+                        body: JSON.stringify({ mes: mes, status: newStatus })
+                    });
+                    if (res.ok) {
+                        delete stagedPaymentChanges[stagedKey];
+                        updateSaveButtonState();
+                        showToast(`Status de ${p.nome_completo} (${mes}) salvo!`);
+                    }
+                } catch (err) {
+                    console.error('Erro ao auto-salvar mensalidade:', err);
+                }
             });
             
             selectWrapper.appendChild(select);

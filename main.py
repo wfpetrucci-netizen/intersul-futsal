@@ -199,7 +199,27 @@ def listar_mensalidades(diretor: str = Depends(verificar_autenticacao)):
     dados = ler_dados()
     return dados.get("mensalidades", {})
 
-# 7. Atualizar Mensalidade de Jogador
+# 7. Atualizar Mensalidades em Lote
+@app.put("/api/mensalidades/batch")
+def atualizar_mensalidades_lote(items: list[MensalidadeBatchItem], diretor: str = Depends(verificar_autenticacao)):
+    dados = ler_dados()
+    mensalidades = dados.setdefault("mensalidades", {})
+    meses_validos = ["maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+    status_validos = ["Confirmado", "Pendente", "Em aberto", "Isento"]
+    
+    atualizados = 0
+    for item in items:
+        str_id = str(item.jogador_id)
+        if str_id not in mensalidades:
+            mensalidades[str_id] = {m: "Pendente" for m in meses_validos}
+        if item.mes in meses_validos and item.status in status_validos:
+            mensalidades[str_id][item.mes] = item.status
+            atualizados += 1
+            
+    salvar_dados(dados)
+    return {"detail": "Mensalidades atualizadas em lote com sucesso.", "count": atualizados}
+
+# 7.1. Atualizar Mensalidade de Jogador Individual
 @app.put("/api/mensalidades/{id}")
 def atualizar_mensalidade(id: int, req: MensalidadeUpdateRequest, diretor: str = Depends(verificar_autenticacao)):
     dados = ler_dados()
@@ -221,25 +241,6 @@ def atualizar_mensalidade(id: int, req: MensalidadeUpdateRequest, diretor: str =
     salvar_dados(dados)
     return {"jogador_id": id, "mes": req.mes, "status": req.status}
 
-# 7.1. Atualizar Mensalidades em Lote
-@app.put("/api/mensalidades/batch")
-def atualizar_mensalidades_lote(items: list[MensalidadeBatchItem], diretor: str = Depends(verificar_autenticacao)):
-    dados = ler_dados()
-    mensalidades = dados.setdefault("mensalidades", {})
-    meses_validos = ["maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
-    status_validos = ["Confirmado", "Pendente", "Em aberto", "Isento"]
-    
-    atualizados = 0
-    for item in items:
-        str_id = str(item.jogador_id)
-        if str_id not in mensalidades:
-            mensalidades[str_id] = {m: "Pendente" for m in meses_validos}
-        if item.mes in meses_validos and item.status in status_validos:
-            mensalidades[str_id][item.mes] = item.status
-            atualizados += 1
-            
-    salvar_dados(dados)
-    return {"detail": "Mensalidades atualizadas em lote com sucesso.", "count": atualizados}
 
 
 # 8. Upload de Foto do Jogador
